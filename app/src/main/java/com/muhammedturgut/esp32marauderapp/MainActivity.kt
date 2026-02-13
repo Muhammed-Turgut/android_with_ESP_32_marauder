@@ -18,16 +18,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
-import com.muhammedturgut.esp32marauderapp.presentation.view.MainScreen
+import com.muhammedturgut.esp32marauderapp.core.appNavigation.AppNavHost
 import com.muhammedturgut.esp32marauderapp.presentation.viewModel.UsbViewModel
 import com.muhammedturgut.esp32marauderapp.ui.theme.Esp32marauderappTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel by viewModels<UsbViewModel>()
@@ -79,18 +82,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Esp32marauderappTheme {
+                val navController = rememberNavController();
                 Scaffold { innerPadding ->
-                    MainScreen(
-                        viewModel = viewModel,
-                        onScan = {
-                            viewModel.clear()
-                            viewModel.sendCommand("SCAN")
-                        },
-                        onStop = {
-                            viewModel.sendCommand("STOP")
-                        },
+
+                    AppNavHost(
+                        navController = navController,
                         modifier = Modifier.padding(innerPadding)
                     )
+
                 }
             }
         }

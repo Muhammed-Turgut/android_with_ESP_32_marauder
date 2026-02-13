@@ -7,9 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.muhammedturgut.esp32marauderapp.data.model.WifiNetwork
+import dagger.hilt.android.lifecycle.HiltViewModel
 import org.json.JSONObject
+import javax.inject.Inject
 
-class UsbViewModel : ViewModel() {
+@HiltViewModel
+class UsbViewModel @Inject constructor() : ViewModel() {
 
     private val _wifiList = mutableStateListOf<WifiNetwork>()
     val wifiList: List<WifiNetwork> = _wifiList
@@ -70,8 +73,10 @@ class UsbViewModel : ViewModel() {
     fun sendCommand(cmd: String) {
         //Telefondan ESP32 cihazına komut göndermek için kullanılır (Örneğin: "scanap" komutu
         try {
+
             port?.write((cmd + "\n").toByteArray(), 1000)
             status = "Komut gönderildi: $cmd"
+
         } catch (e: Exception) {
             status = "Gönderim hatası: ${e.message}"
         }

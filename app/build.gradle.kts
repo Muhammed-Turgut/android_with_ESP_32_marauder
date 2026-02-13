@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -40,6 +42,8 @@ android {
 }
 
 dependencies {
+    val nav_version = "2.9.7"
+    val usb_version = "3.9.0"
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -56,5 +60,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("com.github.mik3y:usb-serial-for-android:3.9.0")
+    implementation("com.github.mik3y:usb-serial-for-android:$usb_version")
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
+
+    // Compose için ViewModel Hilt desteği
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
 }

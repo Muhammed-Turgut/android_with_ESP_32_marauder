@@ -24,14 +24,14 @@ fun ControlButtons(
             onClick = onScan,
             colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
         ) {
-            Text("SCAN", color = Color.Black)
+            Text("ON", color = Color.Black)
         }
 
         Button(
             onClick = onStop,
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
         ) {
-            Text("STOP", color = Color.White)
+            Text("OFF", color = Color.White)
         }
     }
 }

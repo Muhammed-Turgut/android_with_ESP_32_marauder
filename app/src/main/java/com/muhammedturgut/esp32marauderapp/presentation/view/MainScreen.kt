@@ -10,15 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.muhammedturgut.esp32marauderapp.data.model.WifiNetwork
 import com.muhammedturgut.esp32marauderapp.presentation.composables.ControlButtons
 import com.muhammedturgut.esp32marauderapp.presentation.viewModel.UsbViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun MainScreen(
-    viewModel: UsbViewModel,
-    onScan: () -> Unit,
-    onStop: () -> Unit,
+    viewModel: UsbViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -35,7 +35,7 @@ fun MainScreen(
 
         Spacer(Modifier.weight(1f))
 
-        ControlButtons(onScan, onStop)
+       // ControlButtons(onScan, onStop)
     }
 }
 
