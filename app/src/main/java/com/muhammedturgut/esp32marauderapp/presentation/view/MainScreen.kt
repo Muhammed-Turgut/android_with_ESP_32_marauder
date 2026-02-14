@@ -1,84 +1,152 @@
 package com.muhammedturgut.esp32marauderapp.presentation.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.muhammedturgut.esp32marauderapp.data.model.WifiNetwork
-import com.muhammedturgut.esp32marauderapp.presentation.composables.ControlButtons
-import com.muhammedturgut.esp32marauderapp.presentation.viewModel.UsbViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.muhammedturgut.esp32marauderapp.R
+import com.muhammedturgut.esp32marauderapp.presentation.composables.common.ToolPickerItem
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    viewModel: UsbViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onMenuDrawClick: () -> Unit
 ) {
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black)
-    ) {
+            .background(Color.Black),
+        verticalArrangement = Arrangement.Top
+    ){
 
-        StatusBar(viewModel.status)
+        CustomAppBar(onMenuDrawClick ={
+            onMenuDrawClick()
+        })
 
-        Spacer(Modifier.height(12.dp))
+        ToolPicker()
 
-        WifiList(viewModel.wifiList)
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)
+            .height(0.5.dp)
+            .background(Color.White))
 
-        Spacer(Modifier.weight(1f))
 
-       // ControlButtons(onScan, onStop)
-    }
+
+     }
 }
 
 @Composable
-fun StatusBar(text: String) {
-    Text(
-        text = "Durum: $text",
-        color = Color.Green,
-        fontSize = 14.sp,
-        modifier = Modifier.fillMaxWidth()
+fun ToolPicker() {
+    var selectedIndex by remember { mutableIntStateOf(0) }
+
+    val tools = listOf(
+        Triple("Wifi", R.drawable.wifi_icon, true),
+        Triple("GPS", R.drawable.gps_icon, false),
+        Triple("HID", R.drawable.hid_icon, false),
+        Triple("Bluetooth", R.drawable.bluetooth_icon, false),
+        Triple("NFC", R.drawable.nfc_icon, false),
+        Triple("RF", R.drawable.rf_icon, false),
+        Triple("IR", R.drawable.ir_icon, false),
     )
-}
 
-@Composable
-fun WifiList(list: List<WifiNetwork>) {
-    LazyColumn {
-        items(list) { wifi ->
-            WifiItem(wifi)
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(4),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(tools.size) { index ->
+            val item = tools[index]
+            ToolPickerItem(
+                title = item.first,
+                icon = item.second,
+                active = index == selectedIndex,
+                onClick = {
+                    selectedIndex = index
+                }
+            )
         }
     }
 }
 
 @Composable
-fun WifiItem(wifi: WifiNetwork) {
-    val color = when {
-        wifi.rssi > -50 -> Color.Green
-        wifi.rssi > -70 -> Color.Yellow
-        else -> Color.Red
-    }
-
+fun CustomAppBar(onMenuDrawClick : () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-    ) {
-        Text(
-            text = wifi.ssid,
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Absolute.SpaceBetween
+    ){
+
+        Row(verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start){
+        Icon(
+            painter = painterResource(id = R.drawable.menu_icon),
+            contentDescription = null,
+            modifier = Modifier
+                .size(36.dp)
+                .clickable{
+                    onMenuDrawClick()
+                },
+            tint = Color.Unspecified
+        )
+
+       Spacer(modifier = Modifier.width(8.dp))
+
+        Text("Connected",
             color = Color.White,
-            modifier = Modifier.weight(1f)
+            fontSize = 12.sp,
+            fontFamily = FontFamily(Font(R.font.fredoka_regular))
         )
-        Text(
-            text = "${wifi.rssi} dBm",
-            color = color
-        )
+     }
+
+        Row(verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start){
+            Icon(
+                painter = painterResource(id = R.drawable.gps_icon),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = Color.Unspecified
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text("GPS",
+                color = Color.White,
+                fontSize = 12.sp,
+                fontFamily = FontFamily(Font(R.font.fredoka_light))
+            )
+        }
+
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Show(){
+   // MainScreen()
 }

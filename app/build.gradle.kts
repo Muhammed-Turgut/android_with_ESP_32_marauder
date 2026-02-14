@@ -44,6 +44,7 @@ android {
 dependencies {
     val nav_version = "2.9.7"
     val usb_version = "3.9.0"
+    val system_ui_controller = "0.36.0"
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -68,5 +69,8 @@ dependencies {
 
     // Compose için ViewModel Hilt desteği
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    //System ui controller rengi değiştirmek için
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:$system_ui_controller")
 
 }

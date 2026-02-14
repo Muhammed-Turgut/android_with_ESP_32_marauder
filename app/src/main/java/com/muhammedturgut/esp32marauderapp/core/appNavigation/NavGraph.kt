@@ -1,30 +1,66 @@
 package com.muhammedturgut.esp32marauderapp.core.appNavigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.muhammedturgut.esp32marauderapp.presentation.view.DrawerMenu
 import com.muhammedturgut.esp32marauderapp.presentation.view.MainScreen
 import com.muhammedturgut.esp32marauderapp.presentation.view.SplashScreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = "SplashScreen",
-        modifier = modifier
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        modifier = Modifier.background(color = Color.Black),
+        drawerContent = {
+            ModalDrawerSheet(
+                modifier = Modifier.width(240.dp),
+                drawerShape = RoundedCornerShape(topEnd = 0.dp, topStart = 0.dp)
+            ){
+                DrawerMenu()
+            }
+        }
     ) {
 
-        composable("SplashScreen") {
-            SplashScreen(navController = navController)
+        NavHost(
+            navController = navController,
+            startDestination = "SplashScreen",
+            modifier = modifier
+        ) {
+
+            composable("SplashScreen") {
+                SplashScreen(navController = navController)
+            }
+
+            composable("HomeScreen") {
+                MainScreen(onMenuDrawClick = {
+                    scope.launch {
+                        drawerState.open()
+                    }
+                })
+            }
         }
 
-        composable("HomeScreen") {
-            MainScreen()
-        }
     }
+
+
 }
