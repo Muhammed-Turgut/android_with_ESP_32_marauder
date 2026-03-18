@@ -1,5 +1,6 @@
 package com.muhammedturgut.esp32marauderapp
 
+import android.R
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -14,9 +15,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.hoho.android.usbserial.driver.UsbSerialPort
@@ -83,11 +86,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             Esp32marauderappTheme {
                 val navController = rememberNavController();
-                Scaffold { innerPadding ->
+                Scaffold(modifier = Modifier
+                    .background(color = Color.Black)){ innerPadding ->
 
                     AppNavHost(
                         navController = navController,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier
+                            .background(color = Color.Black)
+                            .padding(innerPadding)
                     )
 
                 }

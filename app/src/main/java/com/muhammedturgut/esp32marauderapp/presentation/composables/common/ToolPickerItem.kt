@@ -6,7 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -28,7 +31,8 @@ fun ToolPickerItem(title: String,
                    onClick: () -> Unit){
 
     Box(modifier = Modifier
-        .size(75.dp)
+        .height(100.dp)
+        .width(100.dp)
         .clickable{
             onClick()
         }
@@ -36,8 +40,8 @@ fun ToolPickerItem(title: String,
             color = if(active) Color.White.copy(alpha = 0.15f)  else Color.Transparent,
             shape = RoundedCornerShape(16.dp))
         .border(
-            width = 0.5.dp,
-            color = Color.White,
+            width = if(active) 0.5.dp else 1.dp,
+            color = if(active) Color.White else Color(0xFF63686F),
             shape = RoundedCornerShape(16.dp)
         ),
         contentAlignment = Alignment.Center
@@ -51,10 +55,14 @@ fun ToolPickerItem(title: String,
                 modifier = Modifier.size(20.dp),
                 tint = Color.Unspecified)
 
+            Spacer(modifier = Modifier.height(8.dp))
+
             Text(text = title,
                 fontSize = 14.sp,
-                fontFamily = if (active) FontFamily(Font(R.font.fredoka_semi_bold)) else FontFamily(Font(R.font.fredoka_light)),
-                color = Color.White
+                fontFamily = if (active) FontFamily
+                    (Font(R.font.inconsolata_semi_bold))
+                else FontFamily(Font(R.font.inconsolata_light)),
+                color = if(active) Color.White else Color(0xFF63686F)
             )
         }
 

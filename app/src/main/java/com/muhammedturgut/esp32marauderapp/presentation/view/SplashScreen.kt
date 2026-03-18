@@ -58,7 +58,7 @@ fun SplashScreen(navController: NavController){
             Text(text = "The Ultimate Android Marauder Interface",
                 color = Color.White,
                 fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.fredoka_light))
+                fontFamily = FontFamily(Font(R.font.inconsolata_light))
             )
 
 
@@ -82,7 +82,7 @@ fun SplashScreen(navController: NavController){
             Text(text = "The Ultimate Android Marauder Interface",
                 color = Color.White,
                 fontSize = 12.sp,
-                fontFamily = FontFamily(Font(R.font.fredoka_medium))
+                fontFamily = FontFamily(Font(R.font.inconsolata_medium))
             )
 
         }
