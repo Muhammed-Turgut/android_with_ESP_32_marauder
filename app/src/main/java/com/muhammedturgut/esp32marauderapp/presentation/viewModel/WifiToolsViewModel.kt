@@ -1,20 +1,13 @@
 package com.muhammedturgut.esp32marauderapp.presentation.viewModel
 
-import android.content.Context
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.muhammedturgut.esp32marauderapp.data.datasources.usbPort.USBPort
 import com.muhammedturgut.esp32marauderapp.data.model.WifiNetwork
 import com.muhammedturgut.esp32marauderapp.domain.usecases.GetWifiListUseCase
 import com.muhammedturgut.esp32marauderapp.domain.usecases.SendCommandUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,49 +15,78 @@ import javax.inject.Inject
 class WifiToolsViewModel @Inject constructor(
     private val getWifiListUseCase: GetWifiListUseCase,
     private val sendCommandUseCase: SendCommandUseCase,
-    @ApplicationContext private val context: Context
+    private val usbPort: USBPort
 ) : ViewModel() {
+
+    // 🔥 Map kullanıyoruz → duplicate engellemek için
+    private val wifiMap = mutableMapOf<String, WifiNetwork>()
 
     private val _wifiNetworks = MutableStateFlow<List<WifiNetwork>>(emptyList())
     val wifiNetworks = _wifiNetworks.asStateFlow()
+
+    private val _debugLogs = MutableStateFlow<List<String>>(emptyList())
+    val debugLogs = _debugLogs.asStateFlow()
+
     init {
+        collectDebugLogs()
         startListening()
+    }
+
+    private fun collectDebugLogs() {
+        viewModelScope.launch {
+            usbPort.debugLogs.collect { log ->
+                _debugLogs.update {
+                    (listOf(log) + it).take(50)
+                }
+            }
+        }
     }
 
     private fun startListening() {
         viewModelScope.launch {
-            showToast("Dinleme başladı")
             getWifiListUseCase.getWifiList()
                 .collect { network ->
-                    showToast("Ağ geldi: ${network.ssid}")
-                    _wifiNetworks.update { currentList ->
-                        currentList + network
-                    }
+
+                    // 🔥 Aynı SSID varsa güncelle
+                    wifiMap[network.ssid] = network
+
+                    // 🔥 Listeyi güncelle (sorted opsiyonel)
+                    _wifiNetworks.value = wifiMap.values
+                        .sortedByDescending { it.rssi }
                 }
         }
     }
 
     fun startWifiScan() {
-        showToast("Komut gönderiliyor")
+        if (!usbPort.isPortOpen()) {
+            addLog("❌ Port kapalı, komut gönderilemedi")
+            return
+        }
+
+        wifiMap.clear() // 🔥 eski listeyi temizle
+        _wifiNetworks.value = emptyList()
+
         sendCommand("WIFI_SCAN_START")
     }
 
-    fun sendCommand(command: String,) {
-
-        viewModelScope.launch {
-            sendCommandUseCase.execute(command)
-        }
-    }
-    private fun showToast(message: String) {
-        Handler(Looper.getMainLooper()).post {
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        }
-    }
     fun stopWifiScan() {
         sendCommand("WIFI_SCAN_STOP")
     }
 
+    fun sendCommand(command: String) {
+        viewModelScope.launch {
+            sendCommandUseCase.execute(command)
+        }
+    }
+
     fun clearList() {
-        _wifiNetworks.update { emptyList() }
+        wifiMap.clear()
+        _wifiNetworks.value = emptyList()
+    }
+
+    private fun addLog(msg: String) {
+        _debugLogs.update {
+            (listOf(msg) + it).take(50)
+        }
     }
 }

@@ -11,7 +11,7 @@ class USBPortRepositoryImpl @Inject constructor(
     private val usbPort: USBPort
 ) : USBPortRepository{
     override suspend fun openUsbPort(activityContext : Context) {
-        usbPort.openUsbPort(activityContext = activityContext)
+        usbPort.openUsbPort()
     }
 
 }

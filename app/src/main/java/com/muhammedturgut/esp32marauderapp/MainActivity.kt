@@ -44,7 +44,4 @@ class MainActivity : ComponentActivity() {
         mainViewModel.requestUsbPermission(this@MainActivity)
     }
 
-
-    // Receiver Activity'de
-
 }
