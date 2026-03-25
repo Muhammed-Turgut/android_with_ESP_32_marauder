@@ -12,6 +12,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
+import com.muhammedturgut.esp32marauderapp.core.config.AppConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
@@ -25,10 +26,13 @@ class USBPort @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext val context: Context
 ) {
 
+    var config = AppConfig()
     companion object {
         private const val ACTION_USB_PERMISSION = "com.muhammedturgut.esp32marauderapp.USB_PERMISSION"
         private const val TAG = "USBPort"
-        private const val BAUD_RATE = 115200
+        private val config = AppConfig()
+
+        private val BAUD_RATE = config.BAUD_RATE
     }
 
     private var port: UsbSerialPort? = null
@@ -43,7 +47,6 @@ class USBPort @Inject constructor(
     private val writeQueue = Channel<String>(capacity = Channel.BUFFERED)
 
     private fun log(msg: String) {
-        Log.d(TAG, msg)
         _debugLogs.tryEmit("[${System.currentTimeMillis() % 100000}] $msg")
     }
 
@@ -95,7 +98,6 @@ class USBPort @Inject constructor(
 
     fun openUsbPort(): UsbSerialPort? {
         if (port != null && port?.isOpen == true) {
-            log("⚠️ Port zaten açık")
             return port
         }
 
@@ -103,7 +105,7 @@ class USBPort @Inject constructor(
             val drivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
 
             if (drivers.isEmpty()) {
-                log("❌ No drivers found")
+                log("No drivers found")
                 return null
             }
 
@@ -111,12 +113,12 @@ class USBPort @Inject constructor(
             val device = driver.device
 
             if (!usbManager.hasPermission(device)) {
-                log("❌ No permission")
+                log("No permission")
                 return null
             }
 
             val connection = usbManager.openDevice(device)
-                ?: return log("❌ Connection failed").let { null }
+                ?: return log("Connection failed").let { null }
 
             val usbPort = driver.ports[0]
             usbPort.open(connection)
@@ -137,11 +139,11 @@ class USBPort @Inject constructor(
 
             port = usbPort // ❗❗ BUNU EKLE
 
-            log("✅ Port opened")
+            log("Port opened")
             port
 
         } catch (e: Exception) {
-            log("❌ Open error: ${e.message}")
+            log("Open error: ${e.message}")
             null
         }
     }
@@ -150,7 +152,7 @@ class USBPort @Inject constructor(
         val drivers = UsbSerialProber.getDefaultProber().findAllDrivers(usbManager)
 
         if (drivers.isEmpty()) {
-            log("❌ No USB device")
+            log("No USB device")
             return false
         }
 
@@ -194,14 +196,14 @@ class USBPort @Inject constructor(
 
     fun listenToPort(): Flow<String> = flow {
         if (port == null) {
-            log("❌ Port is null")
+            log("Port is null")
             return@flow
         }
 
         val buffer = ByteArray(1024)
         var leftover = ""
 
-        log("✅ Listening started")
+        log("Listening started")
 
         while (currentCoroutineContext().isActive) {
             try {
@@ -218,7 +220,7 @@ class USBPort @Inject constructor(
                         port?.write(cmd.toByteArray(), 1000)
                         log("→ $cmd")
                     } catch (e: Exception) {
-                        log("❌ Write error: ${e.message}")
+                        log("Write error: ${e.message}")
                     }
                 }
 
@@ -245,7 +247,7 @@ class USBPort @Inject constructor(
                 }
 
             } catch (e: Exception) {
-                log("❌ Loop error: ${e.message}")
+                log("Loop error: ${e.message}")
                 break
             }
         }
@@ -257,7 +259,7 @@ class USBPort @Inject constructor(
         val result = writeQueue.trySend(data)
 
         if (result.isFailure) {
-            log("❌ Queue full, drop: $data")
+            log("Queue full, drop: $data")
         } else {
             log("Queued: $data")
         }

@@ -19,9 +19,10 @@ class WifiRepositoriesImpl @Inject constructor(
     }
 
     /**
-     * 🔥 PAYLAŞILMIŞ FLOW (çok önemli)
-     * Tek bir listenToPort çalışır, herkes buradan beslenir
+      PAYLAŞILMIŞ FLOW
+      Tek bir listenToPort çalışır, herkes buradan beslenir
      */
+
     private val sharedPortFlow: SharedFlow<String> =
         usbPort.listenToPort()
             .shareIn(
@@ -42,9 +43,6 @@ class WifiRepositoriesImpl @Inject constructor(
         usbPort.sendData("$command\n") // ✅ newline şart
     }
 
-    /**
-     * 🔥 Parse işlemini ayırdık (temiz kod)
-     */
     private fun parseWifi(line: String): WifiNetwork? {
         return try {
             val json = JSONObject(line)

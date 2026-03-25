@@ -1,13 +1,11 @@
 package com.muhammedturgut.esp32marauderapp.domain.usecases
 
-import android.content.Context
 import com.muhammedturgut.esp32marauderapp.domain.repositories.USBPortRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class openUsbPortUseCase @Inject constructor(
+class StartListeningUsbPortUseCase @Inject constructor(
     private val usbPortRepository: USBPortRepository
 ) {
-    suspend fun openUsbPort(activityContext : Context){
-        usbPortRepository.openUsbPort(activityContext)
-    }
+    fun listenPort(): Flow<String> = usbPortRepository.startListeningUsbPort()
 }

@@ -6,6 +6,7 @@ import com.muhammedturgut.esp32marauderapp.data.datasources.usbPort.USBPort
 import com.muhammedturgut.esp32marauderapp.data.model.WifiNetwork
 import com.muhammedturgut.esp32marauderapp.domain.usecases.GetWifiListUseCase
 import com.muhammedturgut.esp32marauderapp.domain.usecases.SendCommandUseCase
+import com.muhammedturgut.esp32marauderapp.domain.usecases.StartListeningUsbPortUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -15,6 +16,7 @@ import javax.inject.Inject
 class WifiToolsViewModel @Inject constructor(
     private val getWifiListUseCase: GetWifiListUseCase,
     private val sendCommandUseCase: SendCommandUseCase,
+    private val startListeningUsbPortUseCase: StartListeningUsbPortUseCase,
     private val usbPort: USBPort
 ) : ViewModel() {
 
@@ -34,7 +36,7 @@ class WifiToolsViewModel @Inject constructor(
 
     private fun collectDebugLogs() {
         viewModelScope.launch {
-            usbPort.debugLogs.collect { log ->
+            startListeningUsbPortUseCase.listenPort() .collect { log ->
                 _debugLogs.update {
                     (listOf(log) + it).take(50)
                 }

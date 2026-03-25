@@ -1,5 +1,6 @@
 package com.muhammedturgut.esp32marauderapp.presentation.view
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -26,6 +27,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,24 +44,35 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.muhammedturgut.esp32marauderapp.R
 import com.muhammedturgut.esp32marauderapp.presentation.composables.common.ToolPickerItem
+import com.muhammedturgut.esp32marauderapp.presentation.viewModel.MainViewModel
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.sample
 
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("FlowOperatorInvokedInComposition")
+@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
     onMenuDrawClick: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    minViewModel: MainViewModel = hiltViewModel()
 ) {
+
+    val debugLogs by minViewModel.debugLogs
+        .sample(200)
+        .collectAsState(initial = emptyList())
 
     val sheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
             initialValue = SheetValue.PartiallyExpanded // başlangıçta yarı açık ✅
         )
     )
+
 
     BottomSheetScaffold(
         scaffoldState = sheetState,
@@ -68,7 +81,7 @@ fun MainScreen(
         containerColor = Color.Black,
         sheetDragHandle = null,
         sheetContent = {
-            LogPanel(list)
+            LogPanel(debugLogs)
         }
     ) { paddingValues ->
         Column(
@@ -401,7 +414,7 @@ fun UpTime(time : Int) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogPanel(
-    list: List<LogListItem>,
+    list: List<String>,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -450,10 +463,14 @@ fun LogPanel(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
+            reverseLayout = true // ← yeni loglar üstte görünür
         ) {
-            items(com.muhammedturgut.esp32marauderapp.presentation.view.list) { item ->
-                ListItem(time = item.time, type = item.type, content = item.content)
+            items(
+                items = list,
+                key = { it } // ← recomposition azaltır
+            ) { item ->
+                ListItem(time = "12.01.48", type = "System", content = item)
             }
         }
     }
